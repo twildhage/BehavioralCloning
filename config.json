@@ -1,4 +1,5 @@
 {"data_path": "/home/tiwi/Documents/mldata/car_sim_video_images/",
- "results_path": "/home/carnd/mldata/sim-results/",
- "driving_log_file": "driving_log.csv"
+ "results_path": "/home/tiwi/Documents/mldata/sim-results/",
+ "driving_log_file": "driving_log.csv",
+ "pickle_file": "images.p"
 }
