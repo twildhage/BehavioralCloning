@@ -2,7 +2,10 @@ import numpy as np
 import cv2
 import pandas as pd
 from scipy.stats import bernoulli
-#from sklearn.utils import shuffle
+from sklearn.utils import shuffle
+
+
+DATA_PATH = '/home/timo/Documents/mldata/car_sim_video_images/training_data/driving_log.csv'
 
 def gamma_correction(image, mode='random', gamma=1.25):
     """
@@ -49,21 +52,22 @@ def get_consistent_modification_of(image, angle):
 
 def generate_random_subset_of_dataset(subset_size, nb_subsets, datafile):
     camera_names     = ('center', 'left', 'right')
+    # Create dictionary: {0:'center', ...}
     cameras          = dict({key:val for key,val in enumerate(camera_names)})
-    steering_offsets = dict({key:val for key,val in zip(camera_names, [0, 0.2, -0.2])})
+    # Create dictionary: {'center':0.0, ...}
+    steering_offsets = dict({key:val for key,val in zip(camera_names, [0.0, 0.2, -0.2])})
+
     dataset          = pd.read_csv(datafile)
     stop_generator   = False
     while stop_generator==False:
         for i in range(nb_subsets):
             # Shuffle dataset, so that the first n entries represent a random subset
-            print(dataset)
-            np.random.shuffle(dataset)
-            print(dataset)
+            dataset = shuffle(dataset)
             # Create a list with random cameras: ['left', 'left', 'center', 'right', ...]
             random_cameras = [cameras[i] for i in np.random.randint(0, 3, subset_size)]
             # Create the images files and angles
-            img_files = [dataset[camera][i] for i, camera in enumerate(random_cameras)]
-            angles    = [dataset['steering'][i] + steering_offsets[camera] for i, camera in enumerate(random_cameras)]
+            img_files = [dataset[camera].iloc[i] for i, camera in enumerate(random_cameras)]
+            angles    = [dataset['steering'].iloc[i] + steering_offsets[camera] for i, camera in enumerate(random_cameras)]
             yield img_files, angles
         stop_generator = True
 
@@ -81,6 +85,3 @@ def generate_batch(batch_size, path, file_name):
 #    y_batch = []
     for i in range(batch_size):
         pass
-
-
-
