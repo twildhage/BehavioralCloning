@@ -50,7 +50,8 @@ def get_consistent_modification_of(image, angle):
     else:
         return image, angle
 
-def generate_random_subset_of_dataset(subset_size, nb_subsets, datafile):
+
+def get_random_subset_of_dataset(subset_size, datafile):
     camera_names     = ('center', 'left', 'right')
     # Create dictionary: {0:'center', ...}
     cameras          = dict({key:val for key,val in enumerate(camera_names)})
@@ -58,30 +59,31 @@ def generate_random_subset_of_dataset(subset_size, nb_subsets, datafile):
     steering_offsets = dict({key:val for key,val in zip(camera_names, [0.0, 0.2, -0.2])})
 
     dataset          = pd.read_csv(datafile)
-    stop_generator   = False
-    while stop_generator==False:
-        for i in range(nb_subsets):
-            # Shuffle dataset, so that the first n entries represent a random subset
-            dataset = shuffle(dataset)
-            # Create a list with random cameras: ['left', 'left', 'center', 'right', ...]
-            random_cameras = [cameras[i] for i in np.random.randint(0, 3, subset_size)]
-            # Create the images files and angles
-            img_files = [dataset[camera].iloc[i] for i, camera in enumerate(random_cameras)]
-            angles    = [dataset['steering'].iloc[i] + steering_offsets[camera] for i, camera in enumerate(random_cameras)]
-            yield img_files, angles
-        stop_generator = True
+    # Shuffle dataset, so that the first n entries represent a random subset
+    dataset = shuffle(dataset)
+    # Create a list with random cameras: ['left', 'left', 'center', 'right', ...]
+    random_cameras = [cameras[i] for i in np.random.randint(0, 3, subset_size)]
+    # Create the images files and angles
+    img_files = [dataset[camera].iloc[i] for i, camera in enumerate(random_cameras)]
+    angles    = [dataset['steering'].iloc[i] + steering_offsets[camera] for i, camera in enumerate(random_cameras)]
+    return img_files, angles
 
 
-
-
-def generate_batch(batch_size, path, file_name):
+def generate_batch(batch_size, img_path, filename):
     """
     This function generates a generator, which then yields a training batch.
     If this sounds confusing, check out this excellent explanation on
     stackoverflow:
     http://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do-in-python
     """
-#    X_batch = []
-#    y_batch = []
-    for i in range(batch_size):
-        pass
+    cnt = 0
+    while cnt < 3:
+        X_batch = []
+        y_batch = []
+        img_files, angles = get_random_subset_of_dataset(batch_size, (img_path + filename))
+        for img_file, angle in zip(img_files, angles):
+            img = plt.imread(img_path + img_file)
+            X_batch.append(img)
+            y_batch.append(angle)
+        yield np.array(X_batch), np.array(y_batch)
+        cnt += 1
