@@ -97,7 +97,7 @@ def cut(image, upper, lower):
     height = image.shape[0]
     l = int(height * upper)
     u = int(height * (1-lower))
-    print(l, u)
+#    print(l, u)
     return image[l:u,::]
 
 def resize(image, image_dimensions):
@@ -168,7 +168,7 @@ def get_random_subset_of_dataset(subset_size, filename):
 
 
 
-def generate_batch(batch_size, nb_batches, img_path, filename):
+def generate_batch(batch_size, img_path, filename):
     """
     This function generates a generator, which then yields a training batch.
     If this sounds confusing, check out this excellent explanation on
@@ -176,7 +176,7 @@ def generate_batch(batch_size, nb_batches, img_path, filename):
     http://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do-in-python
     """
     cnt = 0
-    while cnt < nb_batches:
+    while True:
         X_batch = []
         y_batch = []
         img_files, angles = get_random_subset_of_dataset(batch_size, (img_path + filename))
