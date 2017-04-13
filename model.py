@@ -7,7 +7,7 @@ from keras.layers.convolutional import Conv2D
 from keras.models import Model
 from keras.optimizers import Adam
 
-nb_epochs  = 10
+nb_epochs  = 1
 batch_size = 10
 nb_validation_samples = 40
 nb_training_samples_per_epoch = 100
@@ -56,3 +56,7 @@ history = model.fit_generator(training_batch_generator,
                               validation_data=validation_batch_generator,
                               validation_steps=nb_validation_samples,
                               verbose=1)
+
+
+# Save model architectur (*.json) and weights (*.h5)
+pl.save_model(model)

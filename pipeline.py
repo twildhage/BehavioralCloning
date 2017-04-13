@@ -1,5 +1,7 @@
 import numpy as np
 import cv2
+import os
+import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import bernoulli
@@ -188,3 +190,14 @@ def generate_batch(batch_size, img_path, filename):
             y_batch.append(angle)
         yield np.array(X_batch), np.array(y_batch)
         cnt += 1
+
+def save_model(model, fname_model='model_cnn_autonom_driving.json', fname_weights='weights_cnn_autonom_driving.h5'):
+    """
+    Save the model architectur as json file and the weights as h5 file.
+    """
+    print("Save model and weights ...")
+    with open(fname_model, 'w') as f:
+        json.dump(model.to_json(), f)
+    model.save_weights(fname_weights)
+    print("Done.")
+
