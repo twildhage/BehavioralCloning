@@ -8,7 +8,7 @@ from scipy.stats import bernoulli
 from sklearn.utils import shuffle
 
 
-DATA_PATH = '/home/timo/Documents/mldata/car_sim_video_images/training_data/'
+DATA_PATH = '/home/timo/Documents/mldata/car_sim_video_images/training_dataB/'
 DRIVING_LOG_FILE = 'driving_log.csv'
 IMAGE_SIZE = 48
 
@@ -132,8 +132,8 @@ def get_consistent_modification_of(image, angle):
     image, angle = random_flip(image, angle)
     image, angle = random_affine_transformation(image, angle, shear_range=160)
     image        = random_gamma_shift(image)
-    image        = cut(image, 0.38, 0.15)
-    image        = resize(image, (IMAGE_SIZE, IMAGE_SIZE))
+#    image        = cut(image, 0.38, 0.15)
+#    image        = resize(image, (IMAGE_SIZE, IMAGE_SIZE))
     return image, angle
 
 
@@ -190,14 +190,3 @@ def generate_batch(batch_size, img_path, filename):
             y_batch.append(angle)
         yield np.array(X_batch), np.array(y_batch)
         cnt += 1
-
-def save_model(model, fname_model='model_cnn_autonom_driving.json', fname_weights='weights_cnn_autonom_driving.h5'):
-    """
-    Save the model architectur as json file and the weights as h5 file.
-    """
-    print("Save model and weights ...")
-    with open(fname_model, 'w') as f:
-        json.dump(model.to_json(), f)
-    model.save_weights(fname_weights)
-    print("Done.")
-
