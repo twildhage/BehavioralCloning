@@ -1,12 +1,14 @@
 import numpy as np
 import cv2
+import os
+import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import bernoulli
 from sklearn.utils import shuffle
 
 
-DATA_PATH = '/home/timo/Documents/mldata/car_sim_video_images/training_data/'
+DATA_PATH = '/home/timo/Documents/mldata/car_sim_video_images/training_dataB/'
 DRIVING_LOG_FILE = 'driving_log.csv'
 IMAGE_SIZE = 48
 
@@ -130,8 +132,8 @@ def get_consistent_modification_of(image, angle):
     image, angle = random_flip(image, angle)
     image, angle = random_affine_transformation(image, angle, shear_range=160)
     image        = random_gamma_shift(image)
-    image        = cut(image, 0.38, 0.15)
-    image        = resize(image, (IMAGE_SIZE, IMAGE_SIZE))
+#    image        = cut(image, 0.38, 0.15)
+#    image        = resize(image, (IMAGE_SIZE, IMAGE_SIZE))
     return image, angle
 
 

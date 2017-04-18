@@ -15,15 +15,25 @@ This project requires:
 
 The lab enviroment can be created with CarND Term1 Starter Kit. Click [here](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) for the details.
 
-The following resources can be found in this github repository:
-* drive.py
-* video.py
+The simulator is created by Udacity for the Self-Driving-Car course. There is git repository with the source code and instructions on how to setup the [Udacity Simulator](https://github.com/udacity/self-driving-car-sim) for Windows, Linux and Mac.
 
-The simulator can be downloaded from the classroom. However, this requires to be enrolled at the Udacity Self-Driving-Car course.
+### Files of the Project
+The project includes the following files:
 
-## File Overview
+* **model.py**: builds, trains and saves the model
+* **pipeline.py**: preprocessing and batch generator functions
+* **drive.py**: drives the trained model within the car simulator
+* **video.py**: converts the images to a single video
+* **video.mp4**: autonomous drive video on Track 1
+* **model.h5**: model architecture and weights of the trained model
+* **writeup_report.md**: description of the project
 
-### `drive.py`
-ToDo
-### `video.py`
-ToDo
+### Run the Model on a Test Track
+In order to run the pretrained model, download the car simulator and start it in autonomous mode. Clone or download the repository. Then execute the following code in your terminal:
+
+```python
+python drive.py model.h5
+```
+
+### Style Guides
+Within this project I follow the [Udacity Git Commit Message Style Guide](https://udacity.github.io/git-styleguide/).
