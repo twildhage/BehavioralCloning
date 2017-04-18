@@ -26,10 +26,11 @@ These points are addressed separately within this report.
 #### Files of the Project
 The project includes the following files:
 
-* **model.py**: build, train and save the model
-* **pipeline.py**: preprocess the datasets and definition of batch generator
-* **drive.py**: drive the trained model within the car simulator
-* **video.py**: convert the images to a single video
+* **model.py**: builds, trains and saves the model
+* **pipeline.py**: preprocessing and batch generator functions
+* **drive.py**: drives the trained model within the car simulator
+* **video.py**: converts the images to a single video
+* **video.mp4**: autonomous drive video on Track 1
 * **model.h5**: model architecture and weights of the trained model
 * **writeup_report.md**: description of the project
 
@@ -154,13 +155,13 @@ out  = Dense(1)(x)
 
 model = Model(init, out)
 ```
-It is a fully convolutional network. One thing to mention are the first two conv layers where I decided to use filters wit the dimension (2,4). The rational behind this is, that I wanted the image dimension to become square, so that the vertical and horizontal dimension are represented equally.
+It is a fully convolutional network. One thing to mention are the first two conv layers where I decided to use filters with the dimension (2,4). The rational behind this is, that I wanted the image dimension to become square, so that the vertical and horizontal dimension are represented equally.
 The model worked quite well but I had no time to analyzed the effect of this design choice in detail.  
 
 A dropout layer is added to the model in order to reduce overfitting.
 
 
-Here is a summary of the model
+Here is a summary of the model:
 
 |Layer (type) | Output Shape | Param #|
 |-------------------------------------|
@@ -188,7 +189,7 @@ Here is a summary of the model
 
 
 ### Batch Generator
-In the lowest resolution of the car simulator engine the images have a dimension of (160, 320, 3) pixel. This is significantly larger than the datasets of previous projects like the MNIST dataset where the image dimension is only (28, 28, 1). Doing the math reveals that this time each image requires about 196 times as much disk space as for an MNIST image. Therefore, in order to train the model on a PC or an AWS EC2 instance, the batches have to be created online.
+The car simulator engine saves the images with a dimension of (160, 320, 3) pixels. This is significantly larger than the datasets of previous projects like the MNIST dataset where the image dimension is only (28, 28, 1). Doing the math reveals that this time each image requires about 196 times as much disk space as for an MNIST image. Therefore, in order to train the model on a PC or an AWS EC2 instance, the batches have to be created online.
 This means, that instead of storing the entire training and validation datasets on disk and feeding one batch at a time to the model, the images for one batches are only loaded and augmented when required.  
 
 The following code shows the implementation used within this project:
@@ -258,20 +259,7 @@ For the Adam optimizer is kept the recommended default values for the hyper para
 ### Results
 
 The model is tested on the first (left) track in the car simulator.
-The video of the test run can be seen here:
-[![IMAGE ALT TEXT](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be/0.jpg)](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be "Video Title")
+The video of the test run can be seen
+[![here](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be/0.jpg)](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be "Video Title").
 
-
----
-### Files Submitted
-
-#### 1. Submission includes all required files and can be used to run the simulator in autonomous mode
-
-My project includes the following files:
-* model.py contains the script to create and train the model
-* pipeline.py contains the augmentation and batch generation functions 
-* drive.py for driving the car in autonomous mode
-* model.h5 contains a trained convolution neural network
-* writeup_report.md or writeup_report.pdf summarizes the results
-
-#### 3. Creation of the Training Set & Training Process
+It is also available in the repository as video.mp4.
