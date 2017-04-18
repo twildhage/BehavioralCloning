@@ -76,9 +76,9 @@ While flipping the images is helpful, it is not sufficient to even the distribut
 To better illustrate the problem here is a graph of the distribution of steering angles for the data I collected to train my model:
 
 ![alt text][image3]
-As can be seen there basically only three different steering angles. This discrete distribution results from steering the car via the keyboard which allows only on-off steering. No the problem is, that with this training data the model will almost always output one of three steering angles for any image it sees. However, if the car is at an slightly different position with a slightly different speed, choosing one of three angles will likely not be the right action the keep the car on the track.
+As can be seen there basically only three different steering angles. This discrete distribution results from steering the car via the keyboard which allows only on-off steering. Now the problem is, that with this training data the model will almost always output one of three steering angles for any image it sees. However, if the car is at an slightly different position with a slightly different speed, choosing one of three angles will likely not be the right action the keep the car on the track.
 Therefore the rational behind the next augmentation step is the even out the steering angle distribution. Ideally this means, that the car would have seen any for any possible image (at any brightness).
-I adapted the idea from [here](https://medium.com/@ksakmann/behavioral-cloning-make-a-car-drive-like-yourself-dc6021152713#.7k8vfppvk) and i must admit, that I would not have come up with that idea myself. However, it works really well!
+I adapted the idea from [here](https://medium.com/@ksakmann/behavioral-cloning-make-a-car-drive-like-yourself-dc6021152713#.7k8vfppvk) and i must admit, that I would not have come up with that idea myself. However, it works really well.
 
 Here is the code for augmenting the steering angles:
 
@@ -263,3 +263,15 @@ The video of the test run can be seen
 [![here](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be/0.jpg)](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be "Video Title").
 
 It is also available in the repository as video.mp4.
+
+### Discussion
+
+This project was overall a great learning experience. To me the most interesting parts have been using a neural net to drive a car, data augmentation and online batch generation.
+
+I was very surprised that the model could drive the car so well with little training.
+To improve the model further it would be interesting to include the speed and brake data in the training and eventually come up with some augmentation for these.
+Further I think that recurrent neural nets may provide some means to introduce past state information to the model.
+Adding allowed driving ground information to the model would be very interesting too.
+I'm excited to learn about further technique in the coming lectures!
+
+Thanks to the Udacity Team for putting up such a great learning project.
