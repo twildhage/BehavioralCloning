@@ -33,6 +33,10 @@ The project includes the following files:
 * **model.h5**: model architecture and weights of the trained model
 * **writeup_report.md**: description of the project
 
+#### Comments on the Project
+Unfortunately the car simulator did run on my local machine. After spending long hours trying to find and fix the problem and consulting the discussion forums, I decided to change the operating system on my PC from Ubuntu Mate (which does not support Unity) to Ubuntu. This solved the problem but consumed a lot of time that I planed to spend on the project itself.
+Therefore, to my dissatisfaction, this project, although finished, lacks a certain depth at some places ...   
+
 ## Project Steps
 
 ### Data Analysis and Visualization
@@ -54,7 +58,7 @@ In order to load the data a second file is saved called 'driving_log.csv' which 
 It is important to distinguish between the different camera images because for the left and right images a steering angle correction is applied.
 I followed the suggested value of +- 0.2 from the lecture which worked fine for me.
 
-Here is an typical image from the simulator:
+Here is an typical image from from the center camera of the simulator:
 
 ![alt text][image0]
 
@@ -184,108 +188,90 @@ Here is a summary of the model
 
 
 ### Batch Generator
-In the lowest resolution the images have a dimension of (160, 320, 3) pixel. This is significantly larger than the datasets of previous projects like the MNIST dataset where the image dimension is only (28, 28, 1). Doing the math reveals that this time each image requires about 196 times as much disk space. In order to train the model on
+In the lowest resolution of the car simulator engine the images have a dimension of (160, 320, 3) pixel. This is significantly larger than the datasets of previous projects like the MNIST dataset where the image dimension is only (28, 28, 1). Doing the math reveals that this time each image requires about 196 times as much disk space as for an MNIST image. Therefore, in order to train the model on a PC or an AWS EC2 instance, the batches have to be created online.
+This means, that instead of storing the entire training and validation datasets on disk and feeding one batch at a time to the model, the images for one batches are only loaded and augmented when required.  
 
+The following code shows the implementation used within this project:
+```python
+def generate_batch(batch_size, img_path, filename):
+    """
+    The following code is inspired by stackoverflow:
+    http://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do-in-python
+    """
+    cnt = 0
+    while True:
+        X_batch = []
+        y_batch = []
+        img_files, angles = get_random_subset_of_dataset(batch_size, (img_path + filename))
+        for img_file, angle in zip(img_files, angles):
+            img = plt.imread(img_path + img_file)
+            # Modify images
+            img, angle = get_consistent_modification_of(img, angle)
+            X_batch.append(img)
+            y_batch.append(angle)
+        yield np.array(X_batch), np.array(y_batch)
+        cnt += 1
+```
+Thanks to the great keras API, this approach can be implemented without great difficulty.
 
+```python
+import pipeline as pl
 
-## Rubric Points
-### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
+training_batch_generator = pl.generate_batch(batch_size,
+                                              pl.DATA_PATH,
+                                              pl.DRIVING_LOG_FILE)
+
+validation_batch_generator = pl.generate_batch(batch_size,
+                                                pl.DATA_PATH,
+                                                pl.DRIVING_LOG_FILE)
+
+print("Start training the model ...")
+history = model.fit_generator(training_batch_generator,
+                              steps_per_epoch=steps_per_training_epoch,
+                              epochs=nb_epochs,
+                              validation_data=validation_batch_generator,
+                              validation_steps=steps_per_validation_epoch,
+                              verbose=1)
+```
+### Training the model
+My first attempt was to train the model on an AWS EC2 instance and then use the trained model to drive the car autonomously on my local PC. While the training worked fine, the model could not run on my local machine. I think that this issue can be solved, but due to time constrains I decided to try training and testing the model locally.
+For the local training I had to reduce the batch size, the steps per epoch and the number of epochs significantly.
+
+However, this turned out (to my surprise!) to still work very well too.
+
+The parameters I chose for the final training are:
+
+```python
+batch_size = 64
+nb_epochs  = 20
+steps_per_training_epoch = 5
+steps_per_validation_epoch = np.max((1, int(0.1 * steps_per_training_epoch)) )
+
+# Definition of the model architecture
+...
+
+optimizer = Adam()
+model.compile(optimizer=optimizer, loss='mse')
+```
+For the Adam optimizer is kept the recommended default values for the hyper parameters.
+
+### Results
+
+The model is tested on the first (left) track in the car simulator.
+The video of the test run can be seen here:
+[![IMAGE ALT TEXT](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be/0.jpg)](https://www.youtube.com/watch?v=lITnEx7hRW0&feature=youtu.be "Video Title")
+
 
 ---
-### Files Submitted & Code Quality
+### Files Submitted
 
 #### 1. Submission includes all required files and can be used to run the simulator in autonomous mode
 
 My project includes the following files:
-* model.py containing the script to create and train the model
+* model.py contains the script to create and train the model
+* pipeline.py contains the augmentation and batch generation functions 
 * drive.py for driving the car in autonomous mode
-* model.h5 containing a trained convolution neural network
-* writeup_report.md or writeup_report.pdf summarizing the results
-
-#### 2. Submission includes functional code
-Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing
-```sh
-python drive.py model.h5
-```
-
-#### 3. Submission code is usable and readable
-
-The model.py file contains the code for training and saving the convolution neural network. The file shows the pipeline I used for training and validating the model, and it contains comments to explain how the code works.
-
-### Model Architecture and Training Strategy
-
-#### 1. An appropriate model architecture has been employed
-
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24)
-
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18).
-
-#### 2. Attempts to reduce overfitting in the model
-
-The model contains dropout layers in order to reduce overfitting (model.py lines 21).
-
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
-
-#### 3. Model parameter tuning
-
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
-
-#### 4. Appropriate training data
-
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ...
-
-For details about how I created the training data, see the next section.
-
-### Model Architecture and Training Strategy
-
-#### 1. Solution Design Approach
-
-The overall strategy for deriving a model architecture was to ...
-
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
-
-In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting.
-
-To combat the overfitting, I modified the model so that ...
-
-Then I ...
-
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
-
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
-
-#### 2. Final Model Architecture
-
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
-
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
-
-![alt text][image1]
+* model.h5 contains a trained convolution neural network
+* writeup_report.md or writeup_report.pdf summarizes the results
 
 #### 3. Creation of the Training Set & Training Process
-
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
-
-![alt text][image2]
-
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
-
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
-
-Then I repeated this process on track two in order to get more data points.
-
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
-
-![alt text][image6]
-![alt text][image7]
-
-Etc ....
-
-After the collection process, I had X number of data points. I then preprocessed this data by ...
-
-
-I finally randomly shuffled the data set and put Y% of the data into a validation set.
-
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
