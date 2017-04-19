@@ -4,17 +4,18 @@ import pipeline as pl
 
 
 #import tensorflow as tf
-from keras.layers import Dense, Flatten, Lambda, Input, Concatenate, Add, Cropping2D
+import numpy as np
+from keras.layers import Dense, Dropout, Flatten, Lambda, Input, Concatenate, Add, Cropping2D
 from keras.layers.convolutional import Conv2D
 from keras.models import Model
 from keras.optimizers import Adam
-
+import pickle
 print("Done.")
 
-batch_size = 20
-nb_epochs  = 5
-steps_per_training_epoch = 100
-steps_per_validation_epoch = int(0.1 * steps_per_training_epoch)
+batch_size = 64 
+nb_epochs  = 20 
+steps_per_training_epoch = 5
+steps_per_validation_epoch = np.max((1, int(0.1 * steps_per_training_epoch)) )
 
 
 
@@ -37,6 +38,7 @@ x    = Conv2D(64, (3,3), activation='relu', padding='same', strides=(2,2) )(x)
 # Fully connected layers
 x    = Flatten()(x)
 x    = Dense(100, activation='relu')(x)
+x    = Dropout(0.5)(x)
 x    = Dense(10, activation='relu')(x)
 
 # Output without activation
@@ -65,6 +67,6 @@ history = model.fit_generator(training_batch_generator,
                               verbose=1)
 
 
-# Save model architectur (*.json) and weights (*.h5)
-#pl.save_model(model)
-model.save("/home/timo/Dropbox/GitRepos/Udacity/SelfDrvCar/projects/BehavioralCloning/model.h5")
+model.save("model.h5")
+#with open('history.p', 'wb') as f:
+#    pickle.dump(history, f)
