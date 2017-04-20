@@ -124,6 +124,19 @@ init = Input(shape=(160, 320, 3))
 x    = Cropping2D(cropping=((70, 25), (0, 0)))(init)
 x    = Lambda(lambda x: x / 127.5 - 1.0)(x)
 ```
+#### Splitting the Data Set into Train and Validation Sets
+
+In this project we apply data augmentation via flipping, gamma shifting and affine transformation.
+While the first augmentation technique only in theory doubles the data set, the last two techniques create entirely new images on a real scale. This results in an infinite number of new images.
+Since the data set would be shuffled before splitting it into test and validation sets, these two sets should represent equally distributed data sets.
+With other word, there is no difference between a validation set and a test set w.r.t. the data set statistics (distribution, mean, standard deviation).
+They are basically both selected from an infinite pool of augmented and evenly distributed images.
+
+Therefore (to my understanding), when training the model, there should be no additional information that can be gained by a *test set* when analyzing the loss of the models prediction compared to the *validation set*.
+The testing is perform in the car simulator via the visual evaluation of the driving performance.
+
+That is the rational behind the decision, to not include a test set in this project and only work with the validation set.
+
 
 ## Model Architecture
 The model architecture is inspire by the paper from NVIDIA [End to End Learning for Self-Driving Cars](https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf).
@@ -234,7 +247,7 @@ history = model.fit_generator(training_batch_generator,
                               validation_steps=steps_per_validation_epoch,
                               verbose=1)
 ```
-### Training the model
+### Training the Model
 My first attempt was to train the model on an AWS EC2 instance and then use the trained model to drive the car autonomously on my local PC. While the training worked fine, the model could not run on my local machine. I think that this issue can be solved, but due to time constrains I decided to try training and testing the model locally.
 For the local training I had to reduce the batch size, the steps per epoch and the number of epochs significantly.
 
