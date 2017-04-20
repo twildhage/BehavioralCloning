@@ -28,6 +28,17 @@ The project includes the following files:
 * **model.h5**: model architecture and weights of the trained model
 * **writeup_report.md**: description of the project
 
+### Training the Model
+
+The model can be trained from the command line:
+
+```python
+python model.py
+```
+The results will be saved to *model.h5*.
+The training was performed on my local machine (*Intel(R) Core(TM) i5 CPU M520 @2.40GHz 8GByte RAM*) for 20 epochs with 5 steps per epoch and a batch size of 64. Further details can be found in *writeup_report.md*.
+
+
 ### Run the Model on a Test Track
 In order to run the pretrained model, download the car simulator and start it in autonomous mode. Clone or download the repository. Then execute the following code in your terminal:
 
