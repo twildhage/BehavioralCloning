@@ -12,8 +12,8 @@ from keras.optimizers import Adam
 import pickle
 print("Done.")
 
-batch_size = 64 
-nb_epochs  = 20 
+batch_size = 64
+nb_epochs  = 20
 steps_per_training_epoch = 5
 steps_per_validation_epoch = np.max((1, int(0.1 * steps_per_training_epoch)) )
 
@@ -46,17 +46,21 @@ out  = Dense(1)(x)
 
 model = Model(init, out)
 model.summary()
+print("Set up training configuration ...")
+
 optimizer = Adam()
 model.compile(optimizer=optimizer, loss='mse')
 
 
 training_batch_generator = pl.generate_batch(batch_size,
                                               pl.DATA_PATH,
-                                              pl.DRIVING_LOG_FILE)
+                                              pl.DRIVING_LOG_FILE,
+                                              'train')
 
 validation_batch_generator = pl.generate_batch(batch_size,
                                                 pl.DATA_PATH,
-                                                pl.DRIVING_LOG_FILE)
+                                                pl.DRIVING_LOG_FILE,
+                                                'validation')
 
 print("Start training the model ...")
 history = model.fit_generator(training_batch_generator,

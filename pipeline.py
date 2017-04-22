@@ -4,6 +4,7 @@ import os
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 from scipy.stats import bernoulli
 from sklearn.utils import shuffle
 
@@ -137,7 +138,7 @@ def get_consistent_modification_of(image, angle):
     return image, angle
 
 
-def get_random_subset_of_dataset(subset_size, filename):
+def get_random_subset_of_dataset(subset_size, filename, dataset_category='train'):
     """
     Get a random subset of the dataset. The subset consist of the filenames and the
     corresponding angles.
@@ -146,6 +147,8 @@ def get_random_subset_of_dataset(subset_size, filename):
 
     :filename:
         full file name of the driving_log.csv file
+    :dataset_category:
+        category can be 'train' and 'validation'
 
     :result:
         image file names and angles as lists
@@ -157,9 +160,17 @@ def get_random_subset_of_dataset(subset_size, filename):
     # Create dictionary: {'center':0.0, ...}
     steering_offsets = dict({key:val for key,val in zip(camera_names, [0.0, 0.2, -0.2])})
 
-    dataset          = pd.read_csv(filename)
+    datasets          = pd.read_csv(filename)
     # Shuffle dataset, so that the first n entries represent a random subset
-    dataset = shuffle(dataset)
+    datasets = shuffle(datasets, random_state=42)
+
+    train, validation = train_test_split(datasets, test_size=0.2)
+
+    if dataset_category=='train':
+        dataset = train
+    elif dataset_category=='validation':
+        dataset = validation
+
     # Create a list with random cameras: ['left', 'left', 'center', 'right', ...]
     random_cameras = [cameras[i] for i in np.random.randint(0, 3, subset_size)]
     # Create the images files and angles
@@ -170,7 +181,8 @@ def get_random_subset_of_dataset(subset_size, filename):
 
 
 
-def generate_batch(batch_size, img_path, filename):
+
+def generate_batch(batch_size, img_path, filename, dataset_category):
     """
     This function generates a generator, which then yields a training batch.
     If this sounds confusing, check out this excellent explanation on
@@ -181,7 +193,9 @@ def generate_batch(batch_size, img_path, filename):
     while True:
         X_batch = []
         y_batch = []
-        img_files, angles = get_random_subset_of_dataset(batch_size, (img_path + filename))
+        img_files, angles = get_random_subset_of_dataset(batch_size,
+                                                         (img_path + filename),
+                                                         dataset_category)
         for img_file, angle in zip(img_files, angles):
             img = plt.imread(img_path + img_file)
             # Modify images
